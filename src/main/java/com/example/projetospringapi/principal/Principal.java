@@ -1,7 +1,6 @@
 package com.example.projetospringapi.principal;
 
-import com.example.projetospringapi.model.DadosMarca;
-import com.example.projetospringapi.model.Veiculo;
+import com.example.projetospringapi.model.*;
 import com.example.projetospringapi.service.ConsumoAPI;
 import com.example.projetospringapi.service.ConverteDados;
 import com.google.gson.*;
@@ -27,6 +26,8 @@ public class Principal {
         System.out.println("Opção: ");
 
         int op = leitura.nextInt();
+        leitura.nextLine();
+
         String tipoVeiculo = null;
 
         switch (op)
@@ -52,16 +53,132 @@ public class Principal {
             }
         }
 
+        // ------------------ MARCA -------------------------
+
         var json = consumo.obterDados(ENDERECO + tipoVeiculo + "/marcas");
 
         Gson gson = new Gson();
-        // Transformar o Json em uma lista de marcas
         List<DadosMarca> marcas = gson.fromJson(json, new TypeToken<List<DadosMarca>>() {}.getType());
 
         marcas.forEach(m -> {
                     System.out.println("Marca: " + m.nome() + " -- " + m.codigo());
                 });
 
+//        System.out.println("\nEscolha uma marca pelo código: ");
+//        var marcaBuscada = leitura.nextInt();
+//
+//        marcas.forEach(m ->{
+//                if (marcaBuscada == Integer.parseInt(m.codigo()))
+//                {
+//                    System.out.println("\nMarca escolhida: " + m.nome());
+//                }
+//        });
 
+        boolean marcaEncontrada = false;
+        int marcaBuscada = 0;
+        while (!marcaEncontrada) {
+            System.out.println("\nEscolha uma marca pelo código (ou digite 0 para sair): ");
+            marcaBuscada = leitura.nextInt();
+            leitura.nextLine();
+
+            if (marcaBuscada == 0) {
+                System.out.println("Saindo...");
+                return;
+            }
+
+            for (DadosMarca marca : marcas) {
+                if (marcaBuscada == Integer.parseInt(marca.codigo())) {
+                    System.out.println("\nMarca escolhida: " + marca.nome());
+                    marcaEncontrada = true;
+                    break;
+                }
+            }
+
+            if (!marcaEncontrada) {
+                System.out.println("Código inválido! Tente novamente.");
+            }
+        }
+
+        // ----------------------- MODELO -------------------------------
+
+        json = consumo.obterDados(ENDERECO + tipoVeiculo + "/marcas/" + marcaBuscada + "/modelos");
+
+        gson = new Gson();
+        EstruturaModelos estruturaModelos = gson.fromJson(json, EstruturaModelos.class);
+        List<DadosModelo> modelos = estruturaModelos.getModelos();
+
+        modelos.forEach(m -> {
+            System.out.println("Modelo: " + m.nome() + " --- cód: " + m.codigo());
+        });
+
+        boolean modeloEncontrado = false;
+        int modeloBuscado = 0;
+
+        while (!modeloEncontrado) {
+            System.out.println("\nEscolha um modelo pelo código (ou digite 0 para sair): ");
+            modeloBuscado = leitura.nextInt();
+            leitura.nextLine();
+
+            if (modeloBuscado == 0) {
+                System.out.println("Saindo...");
+                return;
+            }
+
+            for (DadosModelo modelo : modelos) {
+                if (modeloBuscado == Integer.parseInt(modelo.codigo())) {
+                    System.out.println("\nModelo escolhido: " + modelo.nome());
+                    modeloEncontrado = true;
+                    break;
+                }
+            }
+
+            if (!modeloEncontrado) {
+                System.out.println("Código inválido! Tente novamente.");
+            }
+        }
+
+        // ------------------ ANO -----------------------------
+
+        json = consumo.obterDados(ENDERECO + tipoVeiculo + "/marcas/" + marcaBuscada + "/modelos/" + modeloBuscado + "/anos");
+        gson = new Gson();
+        List<DadosAno> anos = gson.fromJson(json, new TypeToken<List<DadosAno>>() {}.getType());
+
+        anos.forEach(m -> {
+            System.out.println("Ano: " + m.nome() + " -- " + m.codigo());
+        });
+
+        boolean anoEncontrado = false;
+        String anoBuscado = "";
+
+        while (!anoEncontrado) {
+            System.out.println("\nEscolha um ano pelo código (ou digite 0 para sair): ");
+            anoBuscado = leitura.nextLine();
+
+            if (anoBuscado.equalsIgnoreCase("0")) {
+                System.out.println("Saindo...");
+                return;
+            }
+
+            for (DadosAno ano : anos) {
+                if (anoBuscado.equalsIgnoreCase(ano.codigo())) {
+                    System.out.println("\nAno escolhido: " + ano.nome());
+                    anoEncontrado = true;
+                    break;
+                }
+            }
+
+            if (!anoBuscado.isEmpty())
+            {
+                if (!anoEncontrado) {
+                    System.out.println("Código inválido! Tente novamente.");
+                }
+            }
+        }
+
+        json = consumo.obterDados(ENDERECO + tipoVeiculo + "/marcas/" + marcaBuscada + "/modelos/" + modeloBuscado + "/anos/" + anoBuscado);
+        Veiculo veiculo = conversor.obterDados(json, Veiculo.class);
+        System.out.println(veiculo);
+
+        leitura.close();
     }
 }
