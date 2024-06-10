@@ -177,7 +177,12 @@ public class Principal {
 
         json = consumo.obterDados(ENDERECO + tipoVeiculo + "/marcas/" + marcaBuscada + "/modelos/" + modeloBuscado + "/anos/" + anoBuscado);
         Veiculo veiculo = conversor.obterDados(json, Veiculo.class);
-        System.out.println(veiculo);
+        System.out.println("Modelo: " + veiculo.modelo());
+        System.out.println("Ano: " + veiculo.ano());
+        System.out.println("Marca: " + veiculo.marca());
+        System.out.println("Combustível: " + veiculo.combustivel());
+        System.out.println("Valor médio: " + veiculo.valor());
+        System.out.println("Mês de referência: " + veiculo.mesReferencia());
 
         leitura.close();
     }
